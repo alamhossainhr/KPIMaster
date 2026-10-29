@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Operations</span> / My Tasks{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-list-task me-2 text-primary"></i>{{ title }}
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th class="ps-3">Assigned Task</th>
+                            <th>Related KPI</th>
+                            <th>Assigned By</th>
+                            <th>Deadline</th>
+                            <th>Priority</th>
+                            <th>Target</th>
+                            <th>Status</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for task in tasks %}
+                        <tr>
+                            <td class="ps-3">
+                                <div class="fw-bold text-dark">{{ task.title }}</div>
+                                <small class="text-muted">{{ task.description|default:"No instructions provided" }}</small>
+                            </td>
+                            <td>
+                                {% if task.kpi %}
+                                    <span class="badge bg-light text-dark border">{{ task.kpi.code }}</span>
+                                    <div class="small text-muted">{{ task.kpi.name|truncatechars:30 }}</div>
+                                {% else %}
+                                    <span class="text-muted small">— General Task —</span>
+                                {% endif %}
+                            </td>
+                            <td class="small fw-semibold">{{ task.assigned_by.full_name|default:"Management" }}</td>
+                            <td class="fw-semibold text-danger">{{ task.deadline|date:"d-M-Y" }}</td>
+                            <td>
+                                {% if task.priority == 'High' %}
+                                    <span class="badge bg-danger">High</span>
+                                {% elif task.priority == 'Medium' %}
+                                    <span class="badge bg-warning text-dark">Medium</span>
+                                {% else %}
+                                    <span class="badge bg-info text-dark">Low</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold text-primary">{{ task.target }} {{ task.unit }}</td>
+                            <td>
+                                <span class="badge bg-primary">{{ task.status|default:"Assigned" }}</span>
+                            </td>
+                            <td class="text-end pe-3">
+    {% if task.status == 'Assigned' or task.status == 'In Progress' %}
+        <a href="{% url 'daily_work_create' %}?task_id={{ task.id }}&kpi_id={{ task.kpi_id|default:'' }}&title={{ task.title|urlencode }}&target={{ task.target }}" class="btn btn-sm btn-outline-success fw-bold">
+            <i class="bi bi-journal-plus me-1"></i> Submit Work
+        </a>
+    {% else %}
+        <span class="badge bg-light text-muted border"><i class="bi bi-check-all me-1"></i> {{ task.status }}</span>
+    {% endif %}
+</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-check2-circle fs-2 d-block mb-2 text-success"></i>
+                                No active tasks assigned to you right now.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

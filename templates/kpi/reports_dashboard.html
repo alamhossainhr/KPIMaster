@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Reports</span> / Central Reports Hub{% endblock %}
+
+{% block extra_css %}
+<style>
+.report-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.2s ease-in-out;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    border-color: #38bdf8;
+}
+.report-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    background-color: #f8fafc;
+    border: 1px solid #f1f5f9;
+}
+.stat-pill {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 18px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Top Hub Banner -->
+    <div class="card border-0 shadow-sm mb-4 bg-primary text-white">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph me-2"></i>Central Reports & Analytics Hub</h4>
+                <p class="mb-0 text-white-50 small">Access, filter, and export consolidated performance metrics, floor analytics, and operational logs.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <span class="badge bg-white text-primary px-3 py-2 fw-bold align-self-center">Evaluation Month: {% now "F Y" %}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Bar -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-pill shadow-sm d-flex align-items-center">
+                <div class="report-icon-box bg-primary bg-opacity-10 text-primary me-3">
+                    <i class="bi bi-people"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Active Workforce</div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ total_employees }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-pill shadow-sm d-flex align-items-center">
+                <div class="report-icon-box bg-info bg-opacity-10 text-info me-3">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Attendance Logs</div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ attendance_records_month }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-pill shadow-sm d-flex align-items-center">
+                <div class="report-icon-box bg-danger bg-opacity-10 text-danger me-3">
+                    <i class="bi bi-shield-slash"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Disciplinary Logs</div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ disciplinary_records_month }}</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-pill shadow-sm d-flex align-items-center">
+                <div class="report-icon-box bg-warning bg-opacity-10 text-warning me-3">
+                    <i class="bi bi-speedometer2"></i>
+                </div>
+                <div>
+                    <div class="text-muted small fw-bold text-uppercase">Production KPIs</div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ production_records_month }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categorized Reports Grid -->
+    {% for cat in report_categories %}
+    <div class="mb-4">
+        <div class="d-flex align-items-center mb-3">
+            <i class="bi {{ cat.icon }} fs-5 me-2"></i>
+            <h5 class="fw-bold text-dark mb-0">{{ cat.category_title }}</h5>
+        </div>
+
+        <div class="row g-3">
+            {% for rep in cat.reports %}
+            <div class="col-xl-4 col-md-6">
+                <div class="report-card shadow-sm">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="report-icon-box">
+                                <i class="bi {{ rep.icon }}"></i>
+                            </div>
+                            <span class="badge {{ rep.badge_class }}">{{ rep.badge }}</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-2">{{ rep.title }}</h6>
+                        <p class="text-muted small mb-3" style="min-height: 42px;">{{ rep.desc }}</p>
+                    </div>
+
+                    <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-1">
+                            {% for ext in rep.export_types %}
+                                <span class="badge bg-light text-secondary border" style="font-size: 10px;">{{ ext }}</span>
+                            {% endfor %}
+                        </div>
+                        <a href="{% url rep.url_name %}" class="btn btn-sm btn-outline-primary fw-bold px-3">
+                            Open Report <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+{% block title %}Organization Structure Master{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Organization</span> / Structure Master Setup{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold text-dark mb-1"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>Organization Structure Settings</h4>
+            <p class="text-muted small mb-0">Configure Multi-Factory Business Units, Departments, Sections, Sub-Sections, Designations, and Floor Layouts.</p>
+        </div>
+
+        {% if is_admin and units.count > 1 %}
+        <!-- Factory / Unit Filter for Admins -->
+        <div class="d-flex align-items-center gap-2">
+            <label class="small fw-bold text-muted text-uppercase mb-0">Active Unit:</label>
+            <form method="GET" class="d-inline">
+                <input type="hidden" name="tab" value="{{ active_tab }}">
+                <select name="unit_id" class="form-select form-select-sm fw-bold border-primary shadow-sm" onchange="this.form.submit()">
+                    {% for u in units %}
+                    <option value="{{ u.id }}" {% if selected_unit.id == u.id %}selected{% endif %}>{{ u.code }} - {{ u.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4 bg-white p-2 rounded shadow-sm border-0" id="orgTabs" role="tablist">
+        {% if is_admin %}
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'factories' %}active fw-bold{% endif %}" id="btn-factories" data-bs-toggle="tab" data-bs-target="#tab-factories" type="button" role="tab">
+                <i class="bi bi-buildings me-1 text-primary"></i> Factory Units
+            </button>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'departments' %}active fw-bold{% endif %}" id="btn-departments" data-bs-toggle="tab" data-bs-target="#tab-departments" type="button" role="tab">
+                <i class="bi bi-building me-1 text-info"></i> Departments
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'sections' %}active fw-bold{% endif %}" id="btn-sections" data-bs-toggle="tab" data-bs-target="#tab-sections" type="button" role="tab">
+                <i class="bi bi-diagram-2 me-1 text-success"></i> Sections
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'sub-sections' %}active fw-bold{% endif %}" id="btn-sub-sections" data-bs-toggle="tab" data-bs-target="#tab-sub-sections" type="button" role="tab">
+                <i class="bi bi-list-nested me-1 text-warning"></i> Sub-Sections
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'designations' %}active fw-bold{% endif %}" id="btn-designations" data-bs-toggle="tab" data-bs-target="#tab-designations" type="button" role="tab">
+                <i class="bi bi-person-badge me-1 text-secondary"></i> Designations
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'floors-locations' %}active fw-bold{% endif %}" id="btn-floors-locations" data-bs-toggle="tab" data-bs-target="#tab-floors-locations" type="button" role="tab">
+                <i class="bi bi-geo-alt me-1 text-danger"></i> Floors & Locations
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="orgTabsContent">
+        <!-- 1. FACTORY UNITS TAB (Admin Only) -->
+        {% if is_admin %}
+        <div class="tab-pane fade {% if active_tab == 'factories' %}show active{% endif %}" id="tab-factories" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Register New Factory / Business Unit</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_unit">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Factory / Unit Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Unit 1 - Apparel Division" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Unit Code *</label>
+                            <input type="text" name="code" class="form-control text-uppercase" placeholder="e.g. UNIT-1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Factory Address</label>
+                            <input type="text" name="address" class="form-control" placeholder="e.g. Gazipur, Dhaka">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> Save Unit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Unit Code</th>
+                                <th>Factory Name</th>
+                                <th>Address</th>
+                                <th>Departments</th>
+                                <th>Employees</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in units %}
+                            <tr>
+                                <td class="ps-3">{{ forloop.counter }}</td>
+                                <td><span class="badge bg-primary fs-6">{{ u.code }}</span></td>
+                                <td class="fw-bold text-dark">{{ u.name }}</td>
+                                <td class="text-muted small">{{ u.address|default:"—" }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ u.departments.count }}</span></td>
+                                <td><span class="badge bg-light text-success border fw-bold">{{ u.employees.count }}</span></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="text-center py-4 text-muted">No Factory Units configured yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 2. DEPARTMENTS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'departments' %}show active{% endif %}" id="tab-departments" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add Department</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_department">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Factory / Unit *</label>
+                            <select name="unit_id" class="form-select" required>
+                                {% for u in units %}
+                                <option value="{{ u.id }}" {% if selected_unit.id == u.id %}selected{% endif %}>{{ u.code }} - {{ u.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Department Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. HR & Payroll" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Code *</label>
+                            <input type="text" name="code" class="form-control text-uppercase" placeholder="e.g. HRP" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Description</label>
+                            <div class="input-group">
+                                <input type="text" name="description" class="form-control" placeholder="Department scope">
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Factory Unit</th>
+                                <th>Code</th>
+                                <th>Department Name</th>
+                                <th>Description</th>
+                                <th>Total Sections</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in departments %}
+                            <tr>
+                                <td class="ps-3">{{ forloop.counter }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ d.unit.code|default:"Global" }}</span></td>
+                                <td class="fw-bold text-primary">{{ d.code }}</td>
+                                <td class="fw-semibold">{{ d.name }}</td>
+                                <td class="text-muted small">{{ d.description|default:"—" }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ d.sections.count }}</span></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="7" class="text-center py-4 text-muted">No departments configured for this unit yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SECTIONS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'sections' %}show active{% endif %}" id="tab-sections" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add Section</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_section">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Parent Department *</label>
+                            <select name="department_id" class="form-select" required>
+                                <option value="">-- Select Department --</option>
+                                {% for d in departments %}
+                                <option value="{{ d.id }}">[{{ d.unit.code }}] {{ d.name }} ({{ d.code }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Section Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Payroll Operations" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Code *</label>
+                            <input type="text" name="code" class="form-control text-uppercase" placeholder="e.g. PAY" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> Save Section</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">Factory Unit</th>
+                                <th>Department</th>
+                                <th>Section Code</th>
+                                <th>Section Name</th>
+                                <th>Sub-Sections</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in sections %}
+                            <tr>
+                                <td class="ps-3"><span class="badge bg-light text-dark border">{{ s.department.unit.code }}</span></td>
+                                <td class="fw-bold">{{ s.department.name }}</td>
+                                <td class="fw-bold text-primary">{{ s.code }}</td>
+                                <td>{{ s.name }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ s.subsections.count }}</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No sections configured yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. SUB-SECTIONS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'sub-sections' %}show active{% endif %}" id="tab-sub-sections" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add Sub-Section</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_sub_section">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Parent Section *</label>
+                            <select name="section_id" class="form-select" required>
+                                <option value="">-- Select Section --</option>
+                                {% for s in sections %}
+                                <option value="{{ s.id }}">[{{ s.department.unit.code }}] {{ s.department.code }} &rarr; {{ s.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Sub-Section Name *</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Final Settlement Unit" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Code *</label>
+                            <input type="text" name="code" class="form-control text-uppercase" placeholder="e.g. FSU" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> Save Sub-Section</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">Factory Unit</th>
+                                <th>Department</th>
+                                <th>Section</th>
+                                <th>Code</th>
+                                <th>Sub-Section Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in sub_sections %}
+                            <tr>
+                                <td class="ps-3"><span class="badge bg-light text-dark border">{{ sub.section.department.unit.code }}</span></td>
+                                <td>{{ sub.section.department.name }}</td>
+                                <td class="fw-semibold">{{ sub.section.name }}</td>
+                                <td class="fw-bold text-primary">{{ sub.code }}</td>
+                                <td>{{ sub.name }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-4 text-muted">No sub-sections configured yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. DESIGNATIONS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'designations' %}show active{% endif %}" id="tab-designations" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add Designation</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_designation">
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold">Designation Title *</label>
+                            <input type="text" name="title" class="form-control" placeholder="e.g. Senior Executive - Payroll" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Job Grade</label>
+                            <input type="text" name="grade" class="form-control" placeholder="e.g. Grade-4">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Description</label>
+                            <div class="input-group">
+                                <input type="text" name="description" class="form-control" placeholder="Job responsibilities">
+                                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">#</th>
+                                <th>Designation Title</th>
+                                <th>Job Grade</th>
+                                <th>Description</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for des in designations %}
+                            <tr>
+                                <td class="ps-3">{{ forloop.counter }}</td>
+                                <td class="fw-bold text-dark">{{ des.title }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ des.grade|default:"—" }}</span></td>
+                                <td class="text-muted small">{{ des.description|default:"—" }}</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="5" class="text-center py-3 text-muted">No designations added.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. FLOORS & LOCATIONS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'floors-locations' %}show active{% endif %}" id="tab-floors-locations" role="tabpanel">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add Floor / Production Line Location</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_floor">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Factory / Unit *</label>
+                            <select name="unit_id" class="form-select" required>
+                                {% for u in units %}
+                                <option value="{{ u.id }}" {% if selected_unit.id == u.id %}selected{% endif %}>{{ u.code }} - {{ u.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Floor Name *</label>
+                            <input type="text" name="floor_name" class="form-control" placeholder="e.g. 3rd Floor" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Building / Line</label>
+                            <input type="text" name="building_line" class="form-control" placeholder="e.g. Building A - Line 12">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-check-lg me-1"></i> Save Floor</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small text-uppercase text-muted">
+                            <tr>
+                                <th class="ps-3">Factory Unit</th>
+                                <th>Floor Name</th>
+                                <th>Building / Line</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for f in floors %}
+                            <tr>
+                                <td class="ps-3"><span class="badge bg-light text-dark border">{{ f.unit.code|default:"Global" }}</span></td>
+                                <td class="fw-bold">{{ f.floor_name }}</td>
+                                <td>{{ f.building_line|default:"Main Building" }}</td>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="4" class="text-center py-4 text-muted">No floors configured for this unit yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Keep active tab state synchronized with the URL query parameters
+    document.querySelectorAll('#orgTabs button[data-bs-toggle="tab"]').forEach(tabBtn => {
+        tabBtn.addEventListener('shown.bs.tab', function (event) {
+            const targetId = event.target.getAttribute('data-bs-target').replace('#tab-', '');
+            const url = new URL(window.location);
+            url.searchParams.set('tab', targetId);
+            window.history.replaceState({}, '', url);
+        });
+    });
+</script>
+{% endblock %}

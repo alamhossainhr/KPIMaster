@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+{% block title %}Consolidated KPI Performance Report{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Reports</span> / Consolidated KPI Performance Report{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Executive KPI Metric Banner -->
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">
+                            {% if user_role == 'EMPLOYEE' %}My Record{% else %}Evaluated Personnel{% endif %}
+                        </div>
+                        <h3 class="fw-bold mb-0 mt-1 text-primary">{{ total_evaluated }}</h3>
+                    </div>
+                    <div class="p-3 bg-primary-soft rounded text-primary fs-3">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">
+                            {% if user_role == 'EMPLOYEE' %}My Final Score{% else %}KPI Average{% endif %}
+                        </div>
+                        <h3 class="fw-bold mb-0 mt-1 text-info">{{ overall_avg }}%</h3>
+                    </div>
+                    <div class="p-3 bg-info-soft rounded text-info fs-3">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Outstanding (95%+)</div>
+                        <h3 class="fw-bold mb-0 mt-1 text-success">{{ outstanding_count }}</h3>
+                    </div>
+                    <div class="p-3 bg-success-soft rounded text-success fs-3">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-muted small fw-semibold text-uppercase">Needs Improvement (&lt;70%)</div>
+                        <h3 class="fw-bold mb-0 mt-1 text-danger">{{ needs_improvement_count }}</h3>
+                    </div>
+                    <div class="p-3 bg-danger-soft rounded text-danger fs-3">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter, Preview & Export Toolbar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="GET" class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted mb-1">Evaluation Cycle</label>
+                    <select name="period" class="form-select form-select-sm fw-bold text-primary" onchange="this.form.submit()">
+                        {% for p in periods %}
+                            <option value="{{ p.id }}" {% if selected_period.id == p.id %}selected{% endif %}>
+                                {{ p.name }} &bull; {{ p.get_period_type_display }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                {% if user_role in 'SUPER_ADMIN HR_ADMIN' %}
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Department</label>
+                    <select name="department" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Departments</option>
+                        {% for d in departments %}
+                            <option value="{{ d.id }}" {% if selected_dept_id == d.id|stringformat:"s" %}selected{% endif %}>{{ d.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Rating Grade</label>
+                    <select name="grade" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Grades</option>
+                        {% for r in rating_scales %}
+                            <option value="{{ r.grade }}" {% if selected_grade == r.grade %}selected{% endif %}>{{ r.grade }} ({{ r.name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% if user_role != 'EMPLOYEE' %}
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted mb-1">Search Staff</label>
+                    <input type="text" name="q" value="{{ search_q }}" class="form-control form-control-sm" placeholder="Code / Name...">
+                </div>
+                {% endif %}
+
+                <div class="col-md-3 d-flex align-items-end gap-1">
+                    <button type="submit" class="btn btn-sm btn-primary flex-fill"><i class="bi bi-filter"></i> Filter</button>
+                    <a href="{% url 'report_preview_pdf' %}?period={{ selected_period.id }}&department={{ selected_dept_id|default:'' }}" target="_blank" class="btn btn-sm btn-dark flex-fill"><i class="bi bi-eye"></i> Preview / PDF</a>
+                    <a href="{% url 'export_kpi_excel' %}?period={{ selected_period.id }}&department={{ selected_dept_id|default:'' }}" class="btn btn-sm btn-success flex-fill"><i class="bi bi-file-earmark-excel"></i> Excel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if dept_performance %}
+    <!-- Department Summary Cards (Visible only to Managers/Dept Heads/Admins) -->
+    <div class="row g-3 mb-4">
+        {% for d in dept_performance %}
+        <div class="col-md-4 col-xl-2">
+            <div class="card border-0 shadow-sm p-3 bg-light">
+                <div class="fw-bold text-truncate" title="{{ d.department.name }}">{{ d.department.code }}</div>
+                <small class="text-muted">{{ d.count }} Staff Evaluated</small>
+                <div class="fs-5 fw-bold text-primary mt-1">{{ d.avg_score }}%</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Consolidated Employee Performance Ledger -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-table me-2 text-primary"></i>Performance Review Ledger
+            </h5>
+            <span class="badge bg-light text-dark border">{{ selected_period.name }}</span>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light small text-uppercase text-muted">
+                        <tr>
+                            <th class="ps-3">#</th>
+                            <th>Code</th>
+                            <th>Employee Name</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Supervisor</th>
+                            <th class="text-center">System (80%)</th>
+                            <th class="text-center">Sup (20%)</th>
+                            <th class="text-center">Final Score</th>
+                            <th class="text-center">Grade</th>
+                            <th>Status</th>
+                            <th class="text-end pe-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rev in reviews %}
+                        <tr>
+                            <td class="ps-3 text-muted">{{ forloop.counter }}</td>
+                            <td class="fw-bold text-primary">{{ rev.employee.employee_code }}</td>
+                            <td class="fw-semibold">{{ rev.employee.full_name }}</td>
+                            <td>{{ rev.employee.department.name }}</td>
+                            <td>{{ rev.employee.designation.title }}</td>
+                            <td>{{ rev.employee.supervisor.full_name|default:"—" }}</td>
+                            <td class="text-center">{{ rev.system_generated_score }}%</td>
+                            <td class="text-center">{{ rev.supervisor_evaluation_score }}%</td>
+                            <td class="text-center fw-bold fs-6 text-primary">{{ rev.final_score }}%</td>
+                            <td class="text-center">
+                                {% if rev.final_score >= 90 %}
+                                    <span class="badge bg-success">{{ rev.rating.grade|default:"A" }}</span>
+                                {% elif rev.final_score >= 75 %}
+                                    <span class="badge bg-info text-dark">{{ rev.rating.grade|default:"B" }}</span>
+                                {% elif rev.final_score >= 60 %}
+                                    <span class="badge bg-warning text-dark">{{ rev.rating.grade|default:"C" }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">{{ rev.rating.grade|default:"D" }}</span>
+                                {% endif %}
+                            </td>
+                            <td><small class="fw-semibold text-dark">{{ rev.rating.name|default:"Evaluated" }}</small></td>
+                            <td class="text-end pe-3">
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'employee_card_pdf' rev.id %}" target="_blank" class="btn btn-outline-dark" title="View Individual Card">
+                                        <i class="bi bi-file-earmark-person"></i>
+                                    </a>
+                                    {% if can_edit_kpi %}
+                                    <a href="{% url 'edit_performance_review' rev.id %}" class="btn btn-outline-primary" title="Evaluate / Edit Scores">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="12" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 text-secondary d-block mb-2"></i>
+                                No performance review records found for the selected cycle.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

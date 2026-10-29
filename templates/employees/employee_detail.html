@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% block title %}{{ employee.full_name }} - Profile{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Organization</span> / <a href="{% url 'employee_list' %}" class="text-decoration-none text-muted">Employees</a> / Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Left Column: User Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm text-center p-4">
+            <div class="mb-3">
+                {% if employee.photo %}
+                    <img src="{{ employee.photo.url }}" class="rounded-circle img-thumbnail shadow-sm" style="width: 130px; height: 130px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px; font-size: 2.8rem; font-weight: 700;">
+                        {{ employee.first_name|first|upper }}{{ employee.last_name|first|upper }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <h4 class="fw-bold mb-0 text-dark">{{ employee.full_name }}</h4>
+            <div class="text-primary fw-semibold mb-2">{{ employee.designation.title }}</div>
+            <span class="badge bg-light text-dark border mb-3">{{ employee.employee_code }}</span>
+
+            <div class="d-flex justify-content-center gap-2 mb-3">
+                {% if employee.is_active %}
+                    <span class="badge bg-success px-3 py-1">Active</span>
+                {% else %}
+                    <span class="badge bg-danger px-3 py-1">Inactive</span>
+                {% endif %}
+                <span class="badge bg-info text-dark px-3 py-1">{{ employee.employee_category }}</span>
+            </div>
+
+            <div class="d-grid gap-2 border-top pt-3">
+                <a href="{% url 'employee_edit' employee.id %}" class="btn btn-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Edit Employee Profile
+                </a>
+                {% if employee.user %}
+                    <a href="{% url 'employee_change_password' employee.id %}" class="btn btn-outline-warning text-dark btn-sm">
+                        <i class="bi bi-key me-1"></i> Reset Login Password
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Direct Subordinates -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-info"></i>Direct Subordinates ({{ subordinates.count }})</h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for sub in subordinates %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'employee_detail' sub.id %}" class="fw-semibold text-decoration-none text-dark">{{ sub.full_name }}</a>
+                                <small class="text-muted d-block">{{ sub.designation.title }}</small>
+                            </div>
+                            <span class="badge bg-light text-muted border">{{ sub.employee_code }}</span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item text-center text-muted small py-3">No direct subordinates reporting.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Detail Information -->
+    <div class="col-lg-8">
+        <!-- Placement & Organization -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-building me-2"></i>Organization & Placement</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Department</small>
+                        <span class="fw-semibold">{{ employee.department.name }} ({{ employee.department.code }})</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Section</small>
+                        <span class="fw-semibold">{{ employee.section.name|default:"—" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Sub-Section</small>
+                        <span class="fw-semibold">{{ employee.sub_section.name|default:"—" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Designation</small>
+                        <span class="fw-semibold">{{ employee.designation.title }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Floor & Line</small>
+                        <span class="fw-semibold">{{ employee.floor.name|default:"—" }} {% if employee.line %}(Line: {{ employee.line }}){% endif %}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Job Location & Grade</small>
+                        <span class="fw-semibold">{{ employee.job_location.name|default:"—" }} &bull; {{ employee.job_grade.name|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporting & Contact Information -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-diagram-3 me-2"></i>Hierarchy & System Access</h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Direct Supervisor</small>
+                        {% if employee.supervisor %}
+                            <a href="{% url 'employee_detail' employee.supervisor.id %}" class="fw-bold text-primary text-decoration-none">
+                                {{ employee.supervisor.full_name }} ({{ employee.supervisor.employee_code }})
+                            </a>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Department Head</small>
+                        {% if employee.department_head %}
+                            <span class="fw-semibold">{{ employee.department_head.full_name }}</span>
+                        {% else %}
+                            <span class="text-muted">—</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Email Address</small>
+                        <span class="fw-semibold">{{ employee.email|default:"Not provided" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Mobile Number</small>
+                        <span class="fw-semibold">{{ employee.mobile|default:"Not provided" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">System Login Username</small>
+                        <span class="fw-bold text-dark">{{ employee.user.username|default:"No Login Account" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">System Role</small>
+                        <span class="badge bg-dark">{{ employee.user.role_profile.get_role_display|default:"EMPLOYEE" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Joining Date</small>
+                        <span class="fw-semibold">{{ employee.joining_date|date:"d-M-Y" }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <small class="text-muted d-block">Employment Status</small>
+                        <span class="fw-semibold">{{ employee.employment_status }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

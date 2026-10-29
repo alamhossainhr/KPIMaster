@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Organization</span> / <a href="{% url 'employee_list' %}" class="text-decoration-none text-muted">Employees</a> / Edit{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i>Edit Employee: {{ employee.full_name }}</h5>
+                    <small class="text-muted">Code: <strong>{{ employee.employee_code }}</strong></small>
+                </div>
+                <a href="{% url 'employee_detail' employee.id %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Cancel</a>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-lines-fill me-1"></i> Basic & Contact Information</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">First Name *</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Last Name *</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Email</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Mobile Number</label>
+                            {{ form.mobile }}
+                        </div>
+                         <div class="col-md-6 mb-3">
+    <label class="form-label small fw-bold text-muted">System Role (Portal Access Level)</label>
+    {{ form.system_role }}
+</div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Change Photo</label>
+                            {{ form.photo }}
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building me-1"></i> Organization & Placement</h6>
+                    <!-- 🏢 Organization & Placement -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+        <h6 class="fw-bold mb-0 text-primary">
+            <i class="bi bi-buildings me-2"></i>Organization & Placement
+        </h6>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <!-- Factory / Unit Selector -->
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Factory / Business Unit *</label>
+                {{ form.unit }}
+                {% if form.unit.errors %}<div class="text-danger small">{{ form.unit.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Department -->
+            <div class="col-md-6">
+                <label class="form-label small fw-bold text-dark">Department *</label>
+                {{ form.department }}
+                {% if form.department.errors %}<div class="text-danger small">{{ form.department.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Section -->
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">Section</label>
+                {{ form.section }}
+                {% if form.section.errors %}<div class="text-danger small">{{ form.section.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Sub Section -->
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">Sub Section</label>
+                {{ form.sub_section }}
+                {% if form.sub_section.errors %}<div class="text-danger small">{{ form.sub_section.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Designation -->
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-dark">Designation *</label>
+                {{ form.designation }}
+                {% if form.designation.errors %}<div class="text-danger small">{{ form.designation.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Floor -->
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Floor</label>
+                {{ form.floor }}
+                {% if form.floor.errors %}<div class="text-danger small">{{ form.floor.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Production Line / Unit -->
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold">Line / Unit</label>
+                {{ form.line_unit }}
+                {% if form.line_unit.errors %}<div class="text-danger small">{{ form.line_unit.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Job Grade -->
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">Job Grade</label>
+                {{ form.job_grade }}
+                {% if form.job_grade.errors %}<div class="text-danger small">{{ form.job_grade.errors.0 }}</div>{% endif %}
+            </div>
+
+            <!-- Job Location -->
+            <div class="col-md-6">
+                <label class="form-label small fw-semibold">Job Location</label>
+                {{ form.job_location }}
+                {% if form.job_location.errors %}<div class="text-danger small">{{ form.job_location.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-diagram-3 me-1"></i> Supervisor & Reporting Hierarchy</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold text-primary">Supervisor (Direct Reporting)</label>
+                            {{ form.supervisor }}
+                            <div class="form-text small">Select the supervisor responsible for approving this employee's daily work.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Department Head</label>
+                            {{ form.department_head }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Joining Date *</label>
+                            {{ form.joining_date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Employment Status</label>
+                            {{ form.employment_status }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Employee Category</label>
+                            {{ form.employee_category }}
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check mt-2">
+                                {{ form.is_active }}
+                                <label class="form-check-label fw-semibold" for="{{ form.is_active.id_for_label }}">Active Status</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{% url 'employee_detail' employee.id %}" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

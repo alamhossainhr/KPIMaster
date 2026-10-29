@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Assign Task to Employee{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Operations</span> / Assign Task{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="card border-0 shadow-sm col-lg-10 mx-auto">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0 text-dark">
+                <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Assign Task to Employee
+            </h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST" action="{% url 'assign_task' %}">
+                {% csrf_token %}
+
+                <div class="row g-3">
+                    <div class="col-12">
+    <label class="form-label small fw-bold">Task Title *</label>
+    {{ form.title }}
+    {% if form.title.errors %}<div class="text-danger small">{{ form.title.errors.0 }}</div>{% endif %}
+</div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Assign To Employee *</label>
+                        {{ form.employee }}
+                        {% if form.employee.errors %}<div class="text-danger small">{{ form.employee.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-semibold">Related KPI (Optional)</label>
+                        {{ form.kpi }}
+                        {% if form.kpi.errors %}<div class="text-danger small">{{ form.kpi.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Start Date *</label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}<div class="text-danger small">{{ form.start_date.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Deadline *</label>
+                        {{ form.deadline }}
+                        {% if form.deadline.errors %}<div class="text-danger small">{{ form.deadline.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Priority *</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}<div class="text-danger small">{{ form.priority.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Target *</label>
+                        {{ form.target }}
+                        {% if form.target.errors %}<div class="text-danger small">{{ form.target.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label small fw-semibold">Unit</label>
+                        {{ form.unit }}
+                        {% if form.unit.errors %}<div class="text-danger small">{{ form.unit.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label small fw-semibold">Task Description / Instructions</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
+                    <a href="{% url 'my_tasks' %}" class="btn btn-light border px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">
+                        <i class="bi bi-send-check me-1"></i> Assign Task
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Evaluate KPI - {{ review.employee.full_name }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Performance</span> / <a href="{% url 'performance_reviews' %}" class="text-decoration-none text-muted">Review Ledger</a> / Evaluate{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-award me-2 text-primary"></i>KPI Performance Evaluation</h5>
+                    <small class="text-muted">Period: <strong>{{ review.period.name }}</strong> &bull; Employee: <strong>{{ review.employee.employee_code }} - {{ review.employee.full_name }}</strong></small>
+                </div>
+                <a href="{% url 'performance_reviews' %}" class="btn btn-outline-secondary btn-sm">Back</a>
+            </div>
+            <div class="card-body p-4">
+                <!-- Employee Summary Header -->
+                <div class="bg-light p-3 rounded mb-4 border">
+                    <div class="row g-2 small">
+                        <div class="col-md-6"><strong>Department:</strong> {{ review.employee.department.name }}</div>
+                        <div class="col-md-6"><strong>Designation:</strong> {{ review.employee.designation.title }}</div>
+                        <div class="col-md-6"><strong>Supervisor:</strong> {{ review.employee.supervisor.full_name|default:"—" }}</div>
+                        <div class="col-md-6"><strong>System Generated Score (80%):</strong> <span class="badge bg-primary fs-6">{{ review.system_generated_score }}%</span></div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <h6 class="fw-bold text-primary mb-3"><i class="bi bi-pencil-square me-1"></i> Supervisor Evaluation & Grading</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Supervisor Score (20% Weight) *</label>
+                            <input type="number" step="0.01" min="0" max="100" name="supervisor_evaluation_score" value="{{ review.supervisor_evaluation_score }}" class="form-control fw-bold" required>
+                            <div class="form-text small">Formula: (System Score × 80%) + (Supervisor Score × 20%)</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Current Final Score & Grade</label>
+                            <div class="form-control bg-light fw-bold text-success">{{ review.final_score }}% ({{ review.rating.grade|default:"N/A" }})</div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Supervisor Assessment Remarks</label>
+                            <textarea name="supervisor_comments" rows="3" class="form-control" placeholder="Enter evaluation feedback, strengths, and areas for improvement...">{{ review.supervisor_comments|default:'' }}</textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">HR & Compliance Remarks</label>
+                            <textarea name="hr_comments" rows="2" class="form-control" placeholder="HR administrative notes...">{{ review.hr_comments|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    {% if user_role in 'SUPER_ADMIN HR_ADMIN' %}
+                    <!-- Admin Override Section -->
+                    <h6 class="fw-bold text-danger mb-3"><i class="bi bi-shield-exclamation me-1"></i> Admin Score Override (Authorized Personnel Only)</h6>
+                    <div class="p-3 bg-danger-soft rounded border border-danger-subtle mb-4">
+                        <div class="form-check mb-3">
+                            <input type="checkbox" name="is_overridden" id="is_overridden" class="form-check-input" {% if review.is_overridden %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-danger" for="is_overridden">Enable Manual Score Override</label>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-semibold">Override Score (%)</label>
+                                <input type="number" step="0.01" min="0" max="100" name="override_score" value="{{ review.final_score }}" class="form-control">
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label small fw-semibold">Override Reason *</label>
+                                <input type="text" name="override_reason" value="{{ review.override_reason|default:'' }}" class="form-control" placeholder="State official justification for manual override">
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{% url 'performance_reviews' %}" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save Assessment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

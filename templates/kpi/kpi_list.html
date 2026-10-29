@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% block title %}KPI Configuration & Periods{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">KPI</span> / Templates, Assignments & Periods{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold text-dark mb-1"><i class="bi bi-trophy me-2 text-primary"></i>KPI Management & Indicator Setup</h4>
+            <p class="text-muted mb-0">Configure KPI templates, assign weighted targets to employees, and manage performance cycles.</p>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4 bg-white p-2 rounded shadow-sm border-0" id="kpiTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'templates' %}active{% endif %} fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-templates">
+                <i class="bi bi-card-checklist me-1"></i> KPI Templates
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'assignments' %}active{% endif %} fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-assignments">
+                <i class="bi bi-person-check me-1"></i> Employee KPI Assignments
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link {% if active_tab == 'periods' %}active{% endif %} fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-periods">
+                <i class="bi bi-calendar3 me-1"></i> Evaluation Periods (Weekly, Monthly, 3M, 6M, 9M, 1Y)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="kpiTabsContent">
+        <!-- 1. KPI TEMPLATES TAB -->
+        <div class="tab-pane fade {% if active_tab == 'templates' %}show active{% endif %}" id="tab-templates">
+            {% if can_configure %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-plus-circle me-1"></i> Add KPI Master Indicator</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_kpi">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">KPI Code *</label>
+                            {{ kpi_form.code }}
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label small fw-semibold">KPI Name / Indicator *</label>
+                            {{ kpi_form.name }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Department</label>
+                            {{ kpi_form.department }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Measurement Type</label>
+                            {{ kpi_form.measurement_type }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Default Weight (%) *</label>
+                            {{ kpi_form.default_weight }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Default Target</label>
+                            {{ kpi_form.default_target }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Unit (%, Count, Days)</label>
+                            {{ kpi_form.unit }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Description / Scoring Guideline</label>
+                            {{ kpi_form.description }}
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save KPI Template</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-uppercase text-muted">
+                                <tr>
+                                    <th class="ps-3">Code</th>
+                                    <th>Indicator Name</th>
+                                    <th>Department</th>
+                                    <th>Measurement</th>
+                                    <th>Default Weight</th>
+                                    <th>Target</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k in kpis %}
+                                <tr>
+                                    <td class="ps-3 fw-bold text-primary">{{ k.code }}</td>
+                                    <td class="fw-semibold">{{ k.name }}</td>
+                                    <td>{{ k.department.name|default:"All Organization" }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ k.get_measurement_type_display }}</span></td>
+                                    <td class="fw-bold">{{ k.default_weight }}%</td>
+                                    <td>{{ k.default_target }} {{ k.unit }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No KPI templates found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. KPI ASSIGNMENTS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'assignments' %}show active{% endif %}" id="tab-assignments">
+            {% if can_configure %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-person-plus me-1"></i> Assign KPI to Employee</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="assign_kpi">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Employee *</label>
+                            <select name="employee" class="form-select" required>
+                                <option value="">-- Choose Employee --</option>
+                                {% for emp in assignable_employees %}
+                                <option value="{{ emp.id }}">{{ emp.employee_code }} - {{ emp.full_name }} ({{ emp.department.code }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Select KPI Indicator *</label>
+                            <select name="kpi" class="form-select" required>
+                                <option value="">-- Choose KPI Template --</option>
+                                {% for k in kpis %}
+                                <option value="{{ k.id }}">[{{ k.code }}] {{ k.name }} ({{ k.default_weight }}%)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Evaluation Period *</label>
+                            <select name="period" class="form-select" required>
+                                <option value="">-- Choose Period --</option>
+                                {% for p in periods %}
+                                <option value="{{ p.id }}">{{ p.name }} ({{ p.get_period_type_display }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Weight % (Max Total: 100%) *</label>
+                            <input type="number" step="0.01" name="weight" class="form-control" placeholder="e.g. 25.00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Target Quantity / Score *</label>
+                            <input type="number" step="0.01" name="target" class="form-control" placeholder="e.g. 100.00" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Unit</label>
+                            <input type="text" name="unit" class="form-control" value="Count" required>
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Save KPI Assignment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-uppercase text-muted">
+                                <tr>
+                                    <th class="ps-3">Employee</th>
+                                    <th>Period</th>
+                                    <th>KPI Indicator</th>
+                                    <th>Weight %</th>
+                                    <th>Target</th>
+                                    <th>Assigned By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for a in assignments %}
+                                <tr>
+                                    <td class="ps-3 fw-bold text-dark">{{ a.employee.employee_code }} - {{ a.employee.full_name }}</td>
+                                    <td><span class="badge bg-light text-dark border">{{ a.period.name }}</span></td>
+                                    <td class="fw-semibold text-primary">[{{ a.kpi.code }}] {{ a.kpi.name }}</td>
+                                    <td class="fw-bold text-success">{{ a.weight }}%</td>
+                                    <td>{{ a.target }} {{ a.unit }}</td>
+                                    <td><small class="text-muted">{{ a.assigned_by.username|default:"Admin" }}</small></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="6" class="text-center py-4 text-muted">No KPI assignments configured.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. EVALUATION PERIODS TAB -->
+        <div class="tab-pane fade {% if active_tab == 'periods' %}show active{% endif %}" id="tab-periods">
+            {% if can_configure %}
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h6 class="fw-bold mb-0 text-primary"><i class="bi bi-calendar-plus me-1"></i> Add Performance Period (Weekly, Monthly, 3M, 6M, 9M, 1Y)</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="row g-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="add_period">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Period Name *</label>
+                            {{ period_form.name }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Period Cycle Type *</label>
+                            {{ period_form.period_type }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Start Date *</label>
+                            {{ period_form.start_date }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">End Date *</label>
+                            {{ period_form.end_date }}
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-semibold">Status *</label>
+                            {{ period_form.status }}
+                        </div>
+                        <div class="col-12 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check-circle me-1"></i> Register Period</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light small text-uppercase text-muted">
+                                <tr>
+                                    <th class="ps-3">Period Name</th>
+                                    <th>Cycle Type</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in periods %}
+                                <tr>
+                                    <td class="ps-3 fw-bold text-dark">{{ p.name }}</td>
+                                    <td><span class="badge bg-info text-dark">{{ p.get_period_type_display }}</span></td>
+                                    <td>{{ p.start_date|date:"d-M-Y" }}</td>
+                                    <td>{{ p.end_date|date:"d-M-Y" }}</td>
+                                    <td>
+                                        {% if p.status == 'Open' %}
+                                            <span class="badge bg-success">Open</span>
+                                        {% elif p.status == 'Closed' %}
+                                            <span class="badge bg-danger">Closed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ p.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-4 text-muted">No performance cycles configured.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('#kpiTabs button[data-bs-toggle="tab"]').forEach(tabBtn => {
+        tabBtn.addEventListener('shown.bs.tab', function (event) {
+            const targetId = event.target.getAttribute('data-bs-target').replace('#tab-', '');
+            const url = new URL(window.location);
+            url.searchParams.set('tab', targetId);
+            window.history.replaceState({}, '', url);
+        });
+    });
+</script>
+{% endblock %}

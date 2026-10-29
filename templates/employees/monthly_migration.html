@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Operations</span> / Monthly Floor Turnover & Migration{% endblock %}
+
+{% block extra_css %}
+<style>
+.table-scroll-container {
+    max-height: calc(100vh - 240px);
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.table-sticky-header th {
+    position: sticky;
+    top: 0;
+    background-color: #f8fafc !important;
+    z-index: 10;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="row g-4">
+        <!-- Fixed Entry Form Card (Left Column) -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px; z-index: 5;">
+                <div class="card-header bg-primary text-white py-3">
+                    <h6 class="fw-bold mb-0">
+                        <i class="bi bi-arrow-repeat me-2"></i>Record Floor Turnover / Migration
+                    </h6>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Company Unit *</label>
+                                {{ form.unit }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Floor / Line *</label>
+                                {{ form.floor }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Month *</label>
+                                {{ form.month }}
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-muted">Opening Manpower</label>
+                                {{ form.opening_manpower }}
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-success">New Joined</label>
+                                {{ form.new_joined }}
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-danger">Resigned</label>
+                                {{ form.resigned_count }}
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label small fw-bold text-danger">Separated / Left</label>
+                                {{ form.separated_count }}
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Remarks</label>
+                                {{ form.remarks }}
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top d-grid">
+                            <button type="submit" class="btn btn-primary fw-bold">
+                                <i class="bi bi-save me-1"></i> Save Turnover Data
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Table Card with Date & Floor Filter (Right Column) -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                        <h5 class="fw-bold mb-0 text-dark">
+                            <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>Floor Turnover Logs
+                        </h5>
+                        <span class="badge bg-light text-dark border">{{ migrations.count }} Records</span>
+                    </div>
+
+                    <!-- Date & Floor Filter Bar -->
+                    <form method="GET" class="row g-2 align-items-end pt-2 border-top">
+                        <div class="col-sm-5">
+                            <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-calendar-month me-1"></i>Select Month</label>
+                            <input type="month" name="filter_month" class="form-control form-control-sm" value="{{ filter_month }}">
+                        </div>
+                        <div class="col-sm-4">
+                            <label class="form-label small fw-bold text-muted mb-1"><i class="bi bi-layer-group me-1"></i>Filter Floor</label>
+                            <select name="filter_floor" class="form-select form-select-sm">
+                                <option value="">-- All Floors --</option>
+                                {% for fl in all_floors %}
+                                    <option value="{{ fl.id }}" {% if filter_floor == fl.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ fl.name }}{% if fl.unit %} ({{ fl.unit.code }}){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-sm-3 d-flex gap-1">
+                            <button type="submit" class="btn btn-sm btn-primary w-100 fw-bold">
+                                <i class="bi bi-funnel-fill me-1"></i> Filter
+                            </button>
+                            <a href="{% url 'monthly_migration_manage' %}" class="btn btn-sm btn-light border" title="Reset Filters">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-scroll-container">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-sticky-header small text-uppercase text-muted">
+                                <tr>
+                                    <th class="ps-3">Month</th>
+                                    <th>Floor</th>
+                                    <th class="text-center">Opening</th>
+                                    <th class="text-center">Joined</th>
+                                    <th class="text-center">Total Left</th>
+                                    <th class="text-center">Closing</th>
+                                    <th class="text-center">Turnover %</th>
+                                    <th class="text-end pe-3">Recorded By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in migrations %}
+                                <tr>
+                                    <td class="ps-3 fw-semibold text-dark">{{ item.month|date:"F Y" }}</td>
+                                    <td>
+                                        <div class="fw-bold text-dark">{{ item.floor.name }}</div>
+                                        <small class="text-muted">
+                                            {% if item.unit %}
+                                                {{ item.unit.name }}
+                                            {% else %}
+                                                Main Unit
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    <td class="text-center fw-semibold">{{ item.opening_manpower }}</td>
+                                    <td class="text-center text-success fw-bold">+{{ item.new_joined }}</td>
+                                    <td class="text-center text-danger fw-bold">
+                                        {% if item.total_left > 0 %}-{{ item.total_left }}{% else %}0{% endif %}
+                                    </td>
+                                    <td class="text-center fw-bold">{{ item.closing_manpower }}</td>
+                                    <td class="text-center">
+                                        {% if item.migration_rate <= 5.00 %}
+                                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1">{{ item.migration_rate }}%</span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1">{{ item.migration_rate }}%</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-3 small text-muted">
+                                        {{ item.recorded_by.full_name|default:"Admin" }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center py-5 text-muted">
+                                        <i class="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                                        No turnover records found for the selected filter.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

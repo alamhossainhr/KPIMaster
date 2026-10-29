@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Operations</span> / <a href="{% url 'daily_work_list' %}" class="text-decoration-none text-muted">Daily Work List</a> / {{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <!-- Supervisor Feedback Banner (Appears if task was Returned / Rejected) -->
+        {% if supervisor_feedback %}
+        <div class="alert alert-danger border-0 shadow-sm mb-4 d-flex align-items-center gap-3 p-3">
+            <i class="bi bi-exclamation-octagon-fill fs-2"></i>
+            <div>
+                <h6 class="fw-bold mb-1">Supervisor / Manager Return Remarks:</h6>
+                <div class="text-dark mb-0">{{ supervisor_feedback }}</div>
+                <small class="text-muted">Please correct the requested data, target, or evidence below and click Resubmit.</small>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>{{ title }}
+                </h5>
+                <a href="{% url 'daily_work_list' %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data" id="dailyWorkForm">
+    {% csrf_token %}
+
+    {% if assigned_task %}
+        <input type="hidden" name="assigned_task_id" value="{{ assigned_task.id }}">
+        <div class="alert alert-info border-0 shadow-sm mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-link-45deg fs-4"></i>
+            <div>Submitting work for Assigned Task: <strong>{{ assigned_task.title }}</strong></div>
+        </div>
+    {% endif %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Work Date *</label>
+                            {{ form.work_date }}
+                            {% if form.work_date.errors %}<div class="text-danger small">{{ form.work_date.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Assigned KPI Indicator *</label>
+                            {{ form.kpi }}
+                            {% if form.kpi.errors %}<div class="text-danger small">{{ form.kpi.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Task Category *</label>
+                            {{ form.task_category }}
+                            {% if form.task_category.errors %}<div class="text-danger small">{{ form.task_category.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Priority *</label>
+                            {{ form.priority }}
+                            {% if form.priority.errors %}<div class="text-danger small">{{ form.priority.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Task Title *</label>
+                            {{ form.task_title }}
+                            {% if form.task_title.errors %}<div class="text-danger small">{{ form.task_title.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Target Quantity *</label>
+                            {{ form.target_quantity }}
+                            {% if form.target_quantity.errors %}<div class="text-danger small">{{ form.target_quantity.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Achieved Quantity *</label>
+                            {{ form.achievement_quantity }}
+                            {% if form.achievement_quantity.errors %}<div class="text-danger small">{{ form.achievement_quantity.errors.0 }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-semibold">Unit (Count, %, Days) *</label>
+                            {{ form.unit }}
+                            {% if form.unit.errors %}<div class="text-danger small">{{ form.unit.errors.0 }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">Start Time (Optional)</label>
+                            {{ form.start_time }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-semibold">End Time (Optional)</label>
+                            {{ form.end_time }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Task Description / Remarks</label>
+                            {{ form.task_description }}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Upload New Evidence (Optional: PDF, Excel, Word, Image)</label>
+                            {{ form.evidence_file }}
+                        </div>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{% url 'daily_work_list' %}" class="btn btn-light border">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold">
+                            <i class="bi bi-send-check me-1"></i> Resubmit for Verification
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

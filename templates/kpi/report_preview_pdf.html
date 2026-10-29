@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consolidated KPI Report - {{ selected_period.name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            margin: 0;
+            padding: 20px;
+        }
+        .report-page {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e3a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .header-sub {
+            font-size: 0.85rem;
+            color: #475569;
+            font-weight: 600;
+        }
+        .table-custom th {
+            background-color: #1e3a8a !format;
+            color: #ffffff !important;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 8px 6px;
+            text-align: center;
+        }
+        .table-custom td {
+            font-size: 0.82rem;
+            padding: 6px;
+            vertical-align: middle;
+        }
+        .signature-line {
+            border-top: 1px solid #0f172a;
+            width: 180px;
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+            .report-page {
+                border: none;
+                box-shadow: none;
+                padding: 10px;
+                max-width: 100%;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: A4 landscape;
+                margin: 10mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Action Bar for Browser -->
+    <div class="container-fluid mb-3 no-print max-w-1200" style="max-width: 1200px;">
+        <div class="d-flex justify-content-between align-items-center bg-white p-3 rounded shadow-sm border">
+            <div>
+                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-printer me-2 text-primary"></i>Executive Scorecard Preview</h5>
+                <small class="text-muted">Use standard browser Print (Ctrl + P) or 'Save as PDF'</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button onclick="window.print()" class="btn btn-primary px-4 fw-bold">
+                    <i class="bi bi-printer-fill me-1"></i> Print / Save as PDF
+                </button>
+                <button onclick="window.close()" class="btn btn-outline-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Report Container -->
+    <div class="report-page">
+        <!-- Header -->
+        <div class="text-center border-bottom pb-3 mb-3">
+            <div class="header-title">KPIMaster Enterprise Management</div>
+            <div class="header-sub">Consolidated KPI Performance Scorecard Report</div>
+            <div class="small text-muted mt-1">
+                <strong>Cycle:</strong> {{ selected_period.name }} ({{ selected_period.get_period_type_display }}) &bull; 
+                <strong>Duration:</strong> {{ selected_period.start_date|date:"d-M-Y" }} to {{ selected_period.end_date|date:"d-M-Y" }}
+                {% if selected_dept %} &bull; <strong>Department:</strong> {{ selected_dept.name }}{% endif %}
+            </div>
+        </div>
+
+        <!-- Metric Summary Chips -->
+        <div class="d-flex justify-content-between bg-light p-2 rounded mb-3 border small">
+            <div><strong>Total Evaluated:</strong> {{ total_evaluated }} Personnel</div>
+            <div><strong>Overall Company Average:</strong> {{ overall_avg }}%</div>
+            <div><strong>Generated:</strong> {{ generated_at|date:"d-M-Y H:i" }}</div>
+            <div><strong>Prepared By:</strong> {{ generated_by.username|upper }}</div>
+        </div>
+
+        <!-- Ledger Table -->
+        <table class="table table-bordered table-custom align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 35px;">#</th>
+                    <th style="width: 85px;">Code</th>
+                    <th>Employee Name</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Direct Supervisor</th>
+                    <th style="width: 90px;">System (80%)</th>
+                    <th style="width: 85px;">Sup (20%)</th>
+                    <th style="width: 85px;">Final Score</th>
+                    <th style="width: 55px;">Grade</th>
+                    <th>Appraisal Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rev in reviews %}
+                <tr>
+                    <td class="text-center text-muted">{{ forloop.counter }}</td>
+                    <td class="text-center fw-bold text-primary">{{ rev.employee.employee_code }}</td>
+                    <td class="fw-bold">{{ rev.employee.full_name }}</td>
+                    <td>{{ rev.employee.department.name }}</td>
+                    <td>{{ rev.employee.designation.title }}</td>
+                    <td>{{ rev.employee.supervisor.full_name|default:"—" }}</td>
+                    <td class="text-center">{{ rev.system_generated_score }}%</td>
+                    <td class="text-center">{{ rev.supervisor_evaluation_score }}%</td>
+                    <td class="text-center fw-bold text-dark">{{ rev.final_score }}%</td>
+                    <td class="text-center fw-bold">
+                        {{ rev.rating.grade|default:"—" }}
+                    </td>
+                    <td>{{ rev.rating.name|default:"Completed" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="11" class="text-center py-4 text-muted">No records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Signature Block -->
+        <div class="d-flex justify-content-between mt-5 pt-3">
+            <div class="signature-line">Prepared By (HR)</div>
+            <div class="signature-line">Checked By (Supervisor)</div>
+            <div class="signature-line">Department Head</div>
+            <div class="signature-line">Managing Director / CEO</div>
+        </div>
+    </div>
+</body>
+</html>

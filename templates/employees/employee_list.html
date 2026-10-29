@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block title %}Employees Master{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Organization</span> / Employees{% endblock %}
+
+{% block content %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-people me-2 text-primary"></i>Employee Directory</h5>
+            {% if can_add_employee %}
+                <a href="{% url 'employee_create' %}" class="btn btn-primary btn-sm"><i class="bi bi-person-plus me-1"></i> Add Employee</a>
+            {% endif %}
+        </div>
+        
+        {% if user_role in 'SUPER_ADMIN HR_ADMIN DEPT_HEAD' %}
+        <form method="GET" class="d-flex gap-2">
+            {% if departments.count > 1 %}
+            <select name="department" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if selected_dept == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="Search code/name/mobile...">
+            <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-search"></i></button>
+        </form>
+        {% endif %}
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-uppercase text-muted">
+                    <tr>
+                        <th class="ps-3">Code</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Supervisor</th>
+                        <th>Status</th>
+                        <th class="text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in employees %}
+                    <tr>
+                        <td class="ps-3">
+                            <a href="{% url 'employee_detail' emp.id %}" class="fw-bold text-primary text-decoration-none">
+                                {{ emp.employee_code }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{% url 'employee_detail' emp.id %}" class="fw-semibold text-dark text-decoration-none">
+                                {{ emp.full_name }}
+                            </a>
+                        </td>
+                        <td>{{ emp.department.name }}</td>
+                        <td>{{ emp.designation.title }}</td>
+                        <td>{{ emp.supervisor.full_name|default:"—" }}</td>
+                        <td>
+                            {% if emp.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'employee_detail' emp.id %}" class="btn btn-outline-secondary" title="View Profile">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if user_role in 'SUPER_ADMIN HR_ADMIN DEPT_HEAD' or emp.user == request.user %}
+                                <a href="{% url 'employee_edit' emp.id %}" class="btn btn-outline-primary" title="Edit Employee">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-people fs-1 text-secondary d-block mb-2"></i>
+                            No employee records accessible under your account permissions.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

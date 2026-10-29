@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% block title %}User Manual & SOP Guide{% endblock %}
+{% block breadcrumb %}<span class="text-dark fw-bold">Support</span> / Operations & Setting Manual{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Header Banner -->
+    <div class="card border-0 bg-primary text-white shadow-sm mb-4" style="border-radius: 10px;">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h3 class="fw-bold mb-1"><i class="bi bi-book-half me-2 text-warning"></i>KPIMaster Operations & Settings Manual</h3>
+                <p class="mb-0 text-white-50">Standard Operating Procedures, Role-Specific Entry Workflows, Scoring Rules & Setup Guidelines</p>
+            </div>
+            <div>
+                <button onclick="window.print()" class="btn btn-light btn-sm fw-semibold shadow-sm">
+                    <i class="bi bi-printer me-1"></i> Print / Save SOP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4 bg-white p-2 rounded shadow-sm border-0" id="manualTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-employee-manual">
+                <i class="bi bi-person me-1"></i> Employee Entry Manual
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-supervisor-manual">
+                <i class="bi bi-person-check me-1"></i> Supervisor Verification Manual
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-manager-manual">
+                <i class="bi bi-diagram-3 me-1"></i> Manager & Dept Head Setting Manual
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-admin-manual">
+                <i class="bi bi-shield-lock me-1"></i> Admin & Setup Manual
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#tab-formulas">
+                <i class="bi bi-calculator me-1"></i> Scoring Engine & Formulas
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="manualTabsContent">
+        <!-- ========================================== -->
+        <!-- 1. EMPLOYEE ENTRY MANUAL -->
+        <!-- ========================================== -->
+        <div class="tab-pane fade show active" id="tab-employee-manual">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-workspace me-2"></i>Employee Daily Work Entry & Task Guide</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info border-0 shadow-sm mb-4">
+                        <strong>Important Rule for Employees:</strong> You do not need to calculate or submit your monthly KPI score. Simply submit your actual daily work output accurately. The system automatically computes your KPI achievement based on your supervisor's verified entries.
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-plus-circle text-primary me-2"></i>How to Submit Daily Work</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Click <strong>Daily Work Entry</strong> in the sidebar.</li>
+                                    <li class="mb-2">Click the blue <strong>"+ New Daily Entry"</strong> button.</li>
+                                    <li class="mb-2"><strong>Work Date:</strong> Select today's date (or the date the work was performed).</li>
+                                    <li class="mb-2"><strong>Assigned KPI:</strong> Select the relevant KPI indicator assigned to your role (e.g. <em>[HROP-Budget] Absenteeism Control</em>).</li>
+                                    <li class="mb-2"><strong>Task Category:</strong> Select <em>KPI Direct Task</em>, <em>Routine Task</em>, or <em>Assigned Task</em>.</li>
+                                    <li class="mb-2"><strong>Priority:</strong> Choose <em>Low</em>, <em>Medium</em>, <em>High</em>, or <em>Critical</em>.</li>
+                                    <li class="mb-2"><strong>Target Qty vs Achieved Qty:</strong> Enter the target expected (e.g. <code>1.00</code>) and your actual output (e.g. <code>1.00</code>).</li>
+                                    <li class="mb-2"><strong>Upload Evidence:</strong> Attach your supporting Excel sheet, scan, PDF report, or image (Max 10MB).</li>
+                                    <li>Click <strong>"Submit Daily Work"</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-list-task text-success me-2"></i>Managing Assigned Tasks & Statuses</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Go to <strong>Work Operations &rarr; My Tasks</strong>.</li>
+                                    <li class="mb-2">View tasks assigned directly by your Supervisor or Department Head.</li>
+                                    <li class="mb-2">Pay attention to the <strong>Deadline</strong>, <strong>Priority Level</strong>, and <strong>Target Points</strong>.</li>
+                                    <li class="mb-2">Once completed, submit a daily work entry selecting the assigned task title to claim achievement.</li>
+                                    <li>Track approval feedback under <strong>Performance Review &rarr; View Card</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-dark mb-2"><i class="bi bi-info-circle text-warning me-1"></i> Daily Work Status Definitions</h6>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm align-middle small">
+                            <thead class="table-light">
+                                <tr><th>Status</th><th>Meaning</th><th>Action Needed</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="badge bg-warning text-dark">Submitted</span></td><td>Work recorded; pending supervisor review.</td><td>No action needed; supervisor will verify.</td></tr>
+                                <tr><td><span class="badge bg-success">Approved</span></td><td>Verified by supervisor; counts toward monthly KPI.</td><td>Completed successfully.</td></tr>
+                                <tr><td><span class="badge bg-info">Partially Approved</span></td><td>Supervisor verified a partial quantity.</td><td>Counted based on verified quantity.</td></tr>
+                                <tr><td><span class="badge bg-danger">Returned</span></td><td>Incomplete evidence or data mismatch.</td><td>Correct entries and resubmit.</td></tr>
+                                <tr><td><span class="badge bg-secondary">Rejected</span></td><td>Did not meet operational standards.</td><td>Does not count toward KPI achievement.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. SUPERVISOR VERIFICATION MANUAL -->
+        <!-- ========================================== -->
+        <div class="tab-pane fade" id="tab-supervisor-manual">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-shield-check me-2"></i>Supervisor Task Verification & Scoring Guide</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted leading-relaxed">
+                        Supervisors are the quality gatekeepers of the KPI scoring pipeline. <strong>Employee claimed achievements are never automatically trusted</strong>; the calculation engine strictly uses the supervisor's <strong>Verified Achievement</strong>.
+                    </p>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-check2-square text-success me-2"></i>Verification Workflow Steps</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Open <strong>Work Operations &rarr; Work Approvals</strong>.</li>
+                                    <li class="mb-2">You will see submissions from all staff reporting directly to you.</li>
+                                    <li class="mb-2">Click <strong>"Verify & Score"</strong> on an item.</li>
+                                    <li class="mb-2"><strong>Verified Achievement:</strong> Review evidence and enter the verified output (e.g. Employee claimed <code>25</code>, you verify <code>22</code>).</li>
+                                    <li class="mb-2"><strong>Quality Score (30%):</strong> Rate output quality from <code>0</code> to <code>100</code>.</li>
+                                    <li class="mb-2"><strong>Timeliness Score (20%):</strong> Rate execution timeliness from <code>0</code> to <code>100</code>.</li>
+                                    <li class="mb-2"><strong>Supervisor Score (10%):</strong> Rate discipline and effort from <code>0</code> to <code>100</code>.</li>
+                                    <li class="mb-2">Select decision (<em>Approve, Partially Approve, Return, or Reject</em>).</li>
+                                    <li>Click <strong>"Save Assessment"</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-send-plus text-primary me-2"></i>Assigning Operational Tasks to Team</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Go to <strong>Work Operations &rarr; Assign Tasks</strong>.</li>
+                                    <li class="mb-2">Enter the <strong>Task Title</strong> and clear instructions.</li>
+                                    <li class="mb-2">Select the subordinate employee from your dropdown.</li>
+                                    <li class="mb-2">Set the <strong>Start Date</strong> and <strong>Deadline Date</strong>.</li>
+                                    <li class="mb-2">Assign target quantity, unit, and priority.</li>
+                                    <li>Click <strong>"Assign Task"</strong>. The task appears instantly on the employee's dashboard.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 3. MANAGER & DEPT HEAD SETTING MANUAL -->
+        <!-- ========================================== -->
+        <div class="tab-pane fade" id="tab-manager-manual">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-gear-wide-connected me-2"></i>Department Head & Manager Settings Manual</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted leading-relaxed">
+                        Department Heads and Operating Managers configure the structural master parameters, KPI targets, weights, and multi-cycle review periods.
+                    </p>
+
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-building text-primary me-2"></i>1. Organization Structure Master Setup</h6>
+                                <p class="small text-muted mb-2">Access: <strong>Organization Structure</strong> in sidebar.</p>
+                                <ul class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2"><strong>Departments:</strong> Add new departments with code and description (e.g. <code>HRP</code> - <em>HR & Payroll</em>).</li>
+                                    <li class="mb-2"><strong>Sections:</strong> Add sections attached to a parent department (e.g. <code>PAY</code> - <em>Payroll Operations</em>).</li>
+                                    <li class="mb-2"><strong>Sub-Sections:</strong> Add granular units (e.g. <code>FSU</code> - <em>Final Settlement Unit</em>).</li>
+                                    <li class="mb-2"><strong>Designations & Grades:</strong> Create job designations and grades (e.g. <em>Executive - Payroll</em>).</li>
+                                    <li><strong>Floors & Locations:</strong> Map physical units (e.g. <em>3rd Floor, Gazipur Plant</em>).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-trophy text-warning me-2"></i>2. KPI Assignments & Weight Allocation</h6>
+                                <p class="small text-muted mb-2">Access: <strong>KPI Configuration &rarr; Employee KPI Assignments</strong>.</p>
+                                <ul class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Select the Employee, KPI Indicator, and Evaluation Cycle.</li>
+                                    <li class="mb-2">Enter the assigned <strong>Weight %</strong> and <strong>Target</strong>.</li>
+                                    <li class="mb-2"><strong>100% Rule Validation:</strong> The system will block any assignment that causes the employee's total KPI weight to exceed <code>100.00%</code>.</li>
+                                    <li>Configure <strong>Evaluation Periods</strong> (Weekly, Monthly, 3 Months, 6 Months, 9 Months, or Yearly).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 4. ADMIN & PROVISIONING MANUAL -->
+        <!-- ========================================== -->
+        <div class="tab-pane fade" id="tab-admin-manual">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-primary"><i class="bi bi-person-badge me-2"></i>HR Admin & Super Admin System Administration Manual</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-person-plus text-success me-2"></i>Employee Account Provisioning</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2">Open <strong>Organization &rarr; Employees &rarr; Add Employee</strong>.</li>
+                                    <li class="mb-2">Fill in basic info: Employee Code, Name, Email, Mobile.</li>
+                                    <li class="mb-2">Under <strong>System Login Credentials</strong>, check <em>"Enable Login Account"</em>.</li>
+                                    <li class="mb-2">Assign system role: <code>SUPER_ADMIN</code>, <code>HR_ADMIN</code>, <code>DEPT_HEAD</code>, <code>SUPERVISOR</code>, or <code>EMPLOYEE</code>.</li>
+                                    <li class="mb-2">Link <strong>Department</strong>, <strong>Designation</strong>, and <strong>Direct Supervisor</strong>.</li>
+                                    <li>Save. The employee can now log in using either their <strong>Username</strong> or <strong>Employee Code</strong>.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="border rounded p-3 h-100 bg-light">
+                                <h6 class="fw-bold text-dark"><i class="bi bi-key text-warning me-2"></i>Password Reset & Score Override Rules</h6>
+                                <ol class="small ps-3 text-muted mb-0">
+                                    <li class="mb-2"><strong>Password Reset:</strong> Open any employee profile and click <em>"Reset Login Password"</em> to set new credentials without Django Admin.</li>
+                                    <li class="mb-2"><strong>Manual Score Override:</strong> Open <strong>Performance Review &rarr; Edit</strong> on any record.</li>
+                                    <li class="mb-2">Only HR and Super Admins can enable <em>"Manual Score Override"</em> with mandatory justification remarks.</li>
+                                    <li>The original calculated score is permanently retained for audit compliance.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 5. SCORING ENGINE & FORMULAS -->
+        <!-- ========================================== -->
+        <div class="tab-pane fade" id="tab-formulas">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-calculator me-2"></i>Mathematical Scoring Formulas & Rating Scale</h5>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-bordered align-middle small">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th style="width: 25%;">Metric Level</th>
+                                    <th>Calculation Formula</th>
+                                    <th style="width: 15%;">Weight Contribution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold">1. Daily Quantity Score</td>
+                                    <td><code>Quantity Score = (Verified Achievement / Target) × 100</code> <em>(Capped at 100%)</em></td>
+                                    <td>40%</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">2. Daily Task Score</td>
+                                    <td><code>Daily Score = (Qty Score × 40%) + (Quality × 30%) + (Timeliness × 20%) + (Supervisor × 10%)</code></td>
+                                    <td>100% per Task</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">3. Period KPI Achievement</td>
+                                    <td><code>KPI Achievement % = (Total Period Verified / Total Period Target) × 100</code></td>
+                                    <td>Per Assigned Indicator</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold">4. Weighted KPI Score</td>
+                                    <td><code>Weighted Score = (KPI Achievement % × Assigned Weight %) / 100</code></td>
+                                    <td>Summed to System Score</td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-bold text-primary">5. Final Performance Score</td>
+                                    <td><code>Final Score = (System Generated Score × 80%) + (Supervisor Evaluation × 20%)</code></td>
+                                    <td class="fw-bold text-primary">100% Overall</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h6 class="fw-bold text-dark mb-2">Rating Grade Reference Table</h6>
+                    <div class="row g-2 text-center small">
+                        <div class="col-md-2"><span class="badge bg-success p-2 w-100 fs-6">A+ (95-100%)<br><small>Outstanding</small></span></div>
+                        <div class="col-md-2"><span class="badge bg-success p-2 w-100 fs-6">A (90-94.99%)<br><small>Excellent</small></span></div>
+                        <div class="col-md-2"><span class="badge bg-info text-dark p-2 w-100 fs-6">B+ (80-89.99%)<br><small>Very Good</small></span></div>
+                        <div class="col-md-2"><span class="badge bg-primary p-2 w-100 fs-6">B (70-79.99%)<br><small>Good</small></span></div>
+                        <div class="col-md-2"><span class="badge bg-warning text-dark p-2 w-100 fs-6">C (60-69.99%)<br><small>Needs Imprv.</small></span></div>
+                        <div class="col-md-2"><span class="badge bg-danger p-2 w-100 fs-6">D (&lt;60%)<br><small>Unsatisfactory</small></span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
